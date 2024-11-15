@@ -55,4 +55,16 @@ Provide specific code changes to fix the failing tests."
   ((iteration++))
 done
 
-echo "Maximum iterations reached. Please review the changes and errors manually."
+echo "Maximum iterations reached. Please review the changes and errors manually."#!/bin/bash
+
+# Run tests and store output
+npm test
+
+# Check if tests failed
+if [ $? -ne 0 ]; then
+    echo "Tests failed. Would you like to see detailed test output? (y/n)"
+    read answer
+    if [ "$answer" = "y" ]; then
+        npm test -- --verbose
+    fi
+fi
