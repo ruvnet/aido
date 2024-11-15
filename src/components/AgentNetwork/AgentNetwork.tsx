@@ -39,6 +39,10 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
     }
   };
 
+  useEffect(() => {
+    loadAgents();
+  }, []);
+
   const handleGenerateProposal = async () => {
     // Reset states
     setError('');
@@ -73,6 +77,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       }
     } catch (err) {
       setError(`Error generating proposal: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      throw err; // Re-throw for test to catch
     }
   };
 
@@ -122,6 +127,11 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       {error && (
         <div className="error-message" role="alert" data-testid="error-message">
           {error}
+        </div>
+      )}
+      {success && (
+        <div className="success-message" role="status" data-testid="success-message">
+          Proposal generated successfully!
         </div>
       )}
       {success && (
