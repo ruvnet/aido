@@ -38,16 +38,17 @@ describe('AgentNetwork', () => {
   it('should generate proposal when button is clicked', async () => {
     render(<AgentNetwork />);
     
+    // Fill in proposal topic
+    const topicInput = screen.getByLabelText('Proposal Topic');
+    fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    
+    // Wait for agents to load and select specialty
+    await screen.findByText('Finance');
+    const specialtySelect = screen.getByLabelText('Agent Specialty');
+    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    
+    // Click generate button
     await act(async () => {
-      // Fill in proposal topic
-      const topicInput = screen.getByLabelText('Proposal Topic');
-      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
-      
-      // Select specialty
-      const specialtySelect = screen.getByLabelText('Agent Specialty');
-      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
-      
-      // Click generate button
       const generateButton = screen.getByText('Generate Proposal');
       fireEvent.click(generateButton);
     });
