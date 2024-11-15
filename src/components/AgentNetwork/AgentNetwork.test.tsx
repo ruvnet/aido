@@ -174,8 +174,9 @@ describe('AgentNetwork', () => {
     await waitFor(() => {
       const errorMessage = screen.getByTestId('error-message');
       expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
-    expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+      expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
+      expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+    });
   });
 
   it('should handle empty specialty selection', async () => {
