@@ -38,17 +38,19 @@ describe('AgentNetwork', () => {
   it('should generate proposal when button is clicked', async () => {
     render(<AgentNetwork />);
     
-    // Fill in proposal topic
-    const topicInput = screen.getByLabelText('Proposal Topic');
-    fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
-    
-    // Select specialty
-    const specialtySelect = screen.getByLabelText('Agent Specialty');
-    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
-    
-    // Click generate button
-    const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
+    await act(async () => {
+      // Fill in proposal topic
+      const topicInput = screen.getByLabelText('Proposal Topic');
+      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+      
+      // Select specialty
+      const specialtySelect = screen.getByLabelText('Agent Specialty');
+      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+      
+      // Click generate button
+      const generateButton = screen.getByText('Generate Proposal');
+      fireEvent.click(generateButton);
+    });
     
     // Verify our dependencies were called correctly
     expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
@@ -96,13 +98,17 @@ describe('AgentNetwork', () => {
   });
 
   it('should handle empty proposal topic', async () => {
-    render(<AgentNetwork />);
+    await act(async () => {
+      render(<AgentNetwork />);
+    });
     
-    const specialtySelect = screen.getByLabelText('Agent Specialty');
-    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
-    
-    const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
+    await act(async () => {
+      const specialtySelect = screen.getByLabelText('Agent Specialty');
+      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+      
+      const generateButton = screen.getByText('Generate Proposal');
+      fireEvent.click(generateButton);
+    });
     
     expect(screen.getByText('Please enter a proposal topic')).toBeInTheDocument();
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
