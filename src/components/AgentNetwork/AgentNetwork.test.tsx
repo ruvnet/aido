@@ -28,11 +28,14 @@ describe('AgentNetwork', () => {
     (OpenAIService as any).mockImplementation(() => mockOpenAI);
     (DatabaseService as any).mockImplementation(() => mockDatabase);
     
-    // Setup default mock responses
+    // Setup default mock responses and wait for initial load
     mockDatabase.getAgents.mockResolvedValue([
       { id: '1', name: 'Finance Agent', specialty: 'Finance' },
       { id: '2', name: 'Operations Agent', specialty: 'Operations' }
     ]);
+    await act(async () => {
+      await mockDatabase.getAgents();
+    });
   });
 
   it('should render agent network interface', async () => {

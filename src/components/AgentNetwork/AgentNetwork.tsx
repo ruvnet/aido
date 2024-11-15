@@ -97,6 +97,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
 
       <div className="form-group">
         <label htmlFor="specialty">Agent Specialty</label>
+        {isLoading && <div>Loading agents...</div>}
         <select
           id="specialty"
           value={selectedSpecialty}
@@ -116,7 +117,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       <button 
         onClick={handleGenerateProposal}
         className="generate-button"
-        disabled={!topic.trim() || !selectedSpecialty}
+        disabled={isLoading || !topic.trim() || !selectedSpecialty}
       >
         Generate Proposal
       </button>
