@@ -99,8 +99,10 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
 
       <div className="form-group">
         <label htmlFor="specialty">Agent Specialty</label>
-        {isLoading && <div>Loading agents...</div>}
-        <select
+        {isLoading ? (
+          <div>Loading agents...</div>
+        ) : (
+          <select
           id="specialty"
           value={selectedSpecialty}
           onChange={(e) => setSelectedSpecialty(e.target.value)}
@@ -108,12 +110,13 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
           className="form-control"
         >
           <option value="">Select Specialty</option>
-          {!isLoading && agents && agents.map((agent) => (
-            <option key={agent.id} value={agent.specialty}>
-              {agent.specialty}
-            </option>
-          ))}
-        </select>
+            {agents.map((agent) => (
+              <option key={agent.id} value={agent.specialty}>
+                {agent.specialty}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <button 

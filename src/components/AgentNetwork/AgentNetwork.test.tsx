@@ -23,14 +23,14 @@ describe('AgentNetwork', () => {
     ]),
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     // Reset our mocked implementations
     (OpenAIService as any).mockImplementation(() => mockOpenAI);
     (DatabaseService as any).mockImplementation(() => mockDatabase);
     
-    // Setup default mock responses
-    mockDatabase.getAgents.mockResolvedValue([
+    // Setup default mock responses that resolve immediately
+    mockDatabase.getAgents.mockResolvedValueOnce([
       { id: '1', name: 'Finance Agent', specialty: 'Finance' },
       { id: '2', name: 'Operations Agent', specialty: 'Operations' }
     ]);
@@ -38,10 +38,19 @@ describe('AgentNetwork', () => {
 
   it('should render agent network interface', async () => {
     render(<AgentNetwork />);
+    
+    // Header should be visible immediately
+    expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
+    
+    // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
-      expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
+      expect(screen.queryByText('Loading agents...')).not.toBeInTheDocument();
     });
+    
+    // Now check for elements that appear after loading
+    expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
+    expect(screen.getByLabelText('Proposal Topic')).toBeInTheDocument();
+    expect(screen.getByLabelText('Agent Specialty')).toBeInTheDocument();
   });
 
   it('should generate proposal when button is clicked', async () => {
