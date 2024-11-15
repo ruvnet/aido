@@ -40,8 +40,10 @@ describe('DecisionMaking', () => {
     (DatabaseService as any).mockImplementation(() => mockDatabase);
   });
 
-  it('should render decision making interface', () => {
-    render(<DecisionMaking proposalId="1" />);
+  it('should render decision making interface', async () => {
+    await act(async () => {
+      render(<DecisionMaking proposalId="1" />);
+    });
     expect(screen.getByText('Proposal Evaluation')).toBeInTheDocument();
   });
 
@@ -56,14 +58,23 @@ describe('DecisionMaking', () => {
   });
 
   it('should evaluate proposal when evaluate button is clicked', async () => {
-    render(<DecisionMaking proposalId="1" />);
+    await act(async () => {
+      render(<DecisionMaking proposalId="1" />);
+    });
     
     // Wait for proposal to load
     await screen.findByText('Test proposal content');
     
     // Click evaluate button
-    const evaluateButton = screen.getByText('Evaluate Proposal');
-    fireEvent.click(evaluateButton);
+    await act(async () => {
+      const evaluateButton = screen.getByText('Evaluate Proposal');
+      fireEvent.click(evaluateButton);
+    });
+    
+    // Wait for async operations to complete
+    await act(async () => {
+      await Promise.resolve(); // Flush promises
+    });
     
     // Verify OpenAI service was called
     expect(mockOpenAI.evaluateProposal).toHaveBeenCalledWith(mockProposal.content);
