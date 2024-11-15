@@ -22,34 +22,47 @@ describe('AgentNetwork', () => {
     ]),
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     // Reset our mocked implementations
     (OpenAIService as any).mockImplementation(() => mockOpenAI);
     (DatabaseService as any).mockImplementation(() => mockDatabase);
+    
+    // Setup default mock responses
+    mockDatabase.getAgents.mockResolvedValue([
+      { id: '1', name: 'Finance Agent', specialty: 'Finance' },
+      { id: '2', name: 'Operations Agent', specialty: 'Operations' }
+    ]);
   });
 
-  it('should render agent network interface', () => {
-    render(<AgentNetwork />);
+  it('should render agent network interface', async () => {
+    await act(async () => {
+      render(<AgentNetwork />);
+    });
     expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
     expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
   });
 
   it('should generate proposal when button is clicked', async () => {
-    render(<AgentNetwork />);
+    await act(async () => {
+      render(<AgentNetwork />);
+    });
     
     // Fill in proposal topic
     const topicInput = screen.getByLabelText('Proposal Topic');
-    fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    await act(async () => {
+      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    });
     
     // Wait for agents to load and select specialty
-    await screen.findByText('Finance');
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    await act(async () => {
+      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    });
     
     // Click generate button
+    const generateButton = screen.getByText('Generate Proposal');
     await act(async () => {
-      const generateButton = screen.getByText('Generate Proposal');
       fireEvent.click(generateButton);
     });
     
@@ -72,30 +85,40 @@ describe('AgentNetwork', () => {
     // Mock failure scenario
     mockOpenAI.generateProposal.mockRejectedValueOnce(new Error('API Error'));
     
-    render(<AgentNetwork />);
+    await act(async () => {
+      render(<AgentNetwork />);
+    });
     
     const topicInput = screen.getByLabelText('Proposal Topic');
-    fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    await act(async () => {
+      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    });
     
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    await act(async () => {
+      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    });
     
     const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
+    await act(async () => {
+      fireEvent.click(generateButton);
+    });
     
     await screen.findByText('Error generating proposal: API Error');
   });
 
   it('should load available agents on mount', async () => {
-    render(<AgentNetwork />);
+    await act(async () => {
+      render(<AgentNetwork />);
+    });
     
     // Verify our getAgents method was called
     expect(mockDatabase.getAgents).toHaveBeenCalled();
     
     // Verify agents are displayed in the specialty select
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    await screen.findByText('Finance');
-    await screen.findByText('Operations');
+    expect(screen.getByText('Finance')).toBeInTheDocument();
+    expect(screen.getByText('Operations')).toBeInTheDocument();
   });
 
   it('should handle empty proposal topic', async () => {
@@ -103,11 +126,13 @@ describe('AgentNetwork', () => {
       render(<AgentNetwork />);
     });
     
+    const specialtySelect = screen.getByLabelText('Agent Specialty');
     await act(async () => {
-      const specialtySelect = screen.getByLabelText('Agent Specialty');
       fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
-      
-      const generateButton = screen.getByText('Generate Proposal');
+    });
+    
+    const generateButton = screen.getByText('Generate Proposal');
+    await act(async () => {
       fireEvent.click(generateButton);
     });
     
