@@ -88,7 +88,7 @@ export const PerformanceMonitoring: React.FC = () => {
 
       <div className="view-selector">
         <button onClick={() => setCurrentView('overview')}>Overview</button>
-        <button onClick={() => setCurrentView('agents')}>Agent Performance</button>
+        <button onClick={() => setCurrentView('agents')}>Agent Performance Rankings</button>
         <button onClick={() => setCurrentView('tasks')}>Task Metrics</button>
       </div>
 
