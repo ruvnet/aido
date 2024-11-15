@@ -178,16 +178,12 @@ describe('AgentNetwork', () => {
       fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     });
     
-    await act(async () => {
-      fireEvent.click(screen.getByText('Generate Proposal'));
-    });
+    fireEvent.click(screen.getByText('Generate Proposal'));
     
-    // Wait for error message to appear and verify content
-    await waitFor(() => {
-      const errorMessage = screen.getByTestId('error-message');
-      expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
-    });
+    // Wait for error message to appear
+    const errorMessage = await screen.findByTestId('error-message');
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
@@ -204,16 +200,12 @@ describe('AgentNetwork', () => {
     const topicInput = screen.getByLabelText('Proposal Topic');
     fireEvent.change(topicInput, { target: { value: 'Test Topic' } });
     
-    await act(async () => {
-      fireEvent.click(screen.getByText('Generate Proposal'));
-    });
+    fireEvent.click(screen.getByText('Generate Proposal'));
     
-    // Wait for error message to appear and verify content  
-    await waitFor(() => {
-      const errorMessage = screen.getByTestId('error-message');
-      expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage).toHaveTextContent('Please select an agent specialty');
-    }, { timeout: 3000 });
+    // Wait for error message to appear
+    const errorMessage = await screen.findByTestId('error-message');
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent('Please select an agent specialty');
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
