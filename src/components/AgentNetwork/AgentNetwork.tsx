@@ -22,7 +22,26 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const loadAgents = async () => {
+  useEffect(() => {
+    const loadAgents = async () => {
+      setIsLoading(true);
+      try {
+        const loadedAgents = await databaseService?.getAgents();
+        setAgents(loadedAgents || []);
+        setError(null);
+      } catch (err) {
+        setError('Error loading agents');
+        setAgents([]);
+      } finally {
+        setIsLoading(false);
+        setIsInitialized(true);
+      }
+    };
+
+    if (databaseService) {
+      loadAgents();
+    }
+  }, [databaseService]);
     setIsLoading(true);
     try {
       const loadedAgents = await databaseService.getAgents();
@@ -73,7 +92,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
         onProposalCreated(savedProposal.id);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      setError(`Error generating proposal: ${err instanceof Error ? err.message : 'Unknown error occurred'}`);
       setSuccess(false);
       setProposal(''); // Clear any previous proposal
     } finally {
