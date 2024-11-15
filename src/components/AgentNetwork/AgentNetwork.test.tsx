@@ -60,21 +60,28 @@ describe('AgentNetwork', () => {
     
     // Click generate button
     const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
+    await act(async () => {
+      fireEvent.click(generateButton);
+    });
     
-    // Verify our dependencies were called correctly
-    expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
-      'Cost Reduction',
-      'Finance'
-    );
-    expect(mockDatabase.saveProposal).toHaveBeenCalledWith(
-      'Generated proposal content',
-      'Finance'
-    );
+    // Wait for async operations to complete
+    await waitFor(() => {
+      // Verify our dependencies were called correctly
+      expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
+        'Cost Reduction',
+        'Finance'
+      );
+      expect(mockDatabase.saveProposal).toHaveBeenCalledWith(
+        'Generated proposal content',
+        'Finance'
+      );
+    });
     
     // Verify the result is displayed
-    await screen.findByText('Proposal generated successfully!');
-    expect(screen.getByText('Generated proposal content')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Proposal generated successfully!')).toBeInTheDocument();
+      expect(screen.getByText('Generated proposal content')).toBeInTheDocument();
+    });
   });
 
   it('should display error when proposal generation fails', async () => {

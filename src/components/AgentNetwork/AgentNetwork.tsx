@@ -45,6 +45,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
     setError(null);
     setSuccess(false);
     setProposal('');
+    setIsLoading(true);
 
     // Validate input
     if (!topic.trim()) {
@@ -73,10 +74,13 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
         onProposalCreated(savedProposal.id);
       }
     } catch (err) {
+      setIsLoading(false);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(`Error generating proposal: ${errorMessage}`);
       setSuccess(false);
       setProposal(''); // Clear any previous proposal
+    } finally {
+      setIsLoading(false);
     }
   };
 
