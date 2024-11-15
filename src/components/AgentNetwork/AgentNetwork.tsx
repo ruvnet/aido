@@ -12,27 +12,26 @@ interface AgentNetworkProps {
 
 export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated }) => {
   const [topic, setTopic] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState('');
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
   const [proposal, setProposal] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const loadAgents = async () => {
     setIsLoading(true);
     try {
       const loadedAgents = await database.getAgents();
       setAgents(loadedAgents || []);
-      if (loadedAgents?.length > 0) {
-        setSelectedSpecialty(loadedAgents[0].specialty);
-      }
       setError(null);
     } catch (err) {
       setError('Error loading agents');
       setAgents([]);
     } finally {
       setIsLoading(false);
+      setIsInitialized(true);
     }
   };
 
@@ -125,7 +124,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       <button 
         onClick={handleGenerateProposal}
         className="generate-button"
-        disabled={isLoading || !topic.trim() || !selectedSpecialty}
+        disabled={isLoading || !isInitialized || !topic.trim() || !selectedSpecialty}
       >
         Generate Proposal
       </button>
