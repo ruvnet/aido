@@ -22,52 +22,43 @@ describe('AgentNetwork', () => {
     ]),
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
     // Reset our mocked implementations
     (OpenAIService as any).mockImplementation(() => mockOpenAI);
     (DatabaseService as any).mockImplementation(() => mockDatabase);
     
-    // Setup default mock responses and wait for initial load
+    // Setup default mock responses
     mockDatabase.getAgents.mockResolvedValue([
       { id: '1', name: 'Finance Agent', specialty: 'Finance' },
       { id: '2', name: 'Operations Agent', specialty: 'Operations' }
     ]);
-    await act(async () => {
-      await mockDatabase.getAgents();
-    });
   });
 
   it('should render agent network interface', async () => {
-    await act(async () => {
-      render(<AgentNetwork />);
-    });
+    render(<AgentNetwork />);
+    await screen.findByText('AI Agent Network');
     expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
     expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
   });
 
   it('should generate proposal when button is clicked', async () => {
-    await act(async () => {
-      render(<AgentNetwork />);
-    });
+    render(<AgentNetwork />);
+    
+    // Wait for agents to load
+    await screen.findByLabelText('Agent Specialty');
     
     // Fill in proposal topic
     const topicInput = screen.getByLabelText('Proposal Topic');
-    await act(async () => {
-      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
-    });
+    fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
     
-    // Wait for agents to load and select specialty
+    // Select specialty
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    await act(async () => {
-      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
-    });
+    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     
     // Click generate button
     const generateButton = screen.getByText('Generate Proposal');
-    await act(async () => {
-      fireEvent.click(generateButton);
-    });
+    fireEvent.click(generateButton);
     
     // Verify our dependencies were called correctly
     expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
