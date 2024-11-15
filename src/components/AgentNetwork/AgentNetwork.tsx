@@ -140,16 +140,19 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
       <button 
         onClick={handleGenerateProposal}
         className="generate-button"
-        disabled={isLoading || !isInitialized || !topic.trim() || !selectedSpecialty}
+        disabled={isLoading || !isInitialized}
       >
         Generate Proposal
       </button>
 
-      {error !== '' && (
-        <div className="error-message" role="alert" data-testid="error-message">
-          {error}
-        </div>
-      )}
+      <div 
+        className="error-message" 
+        role="alert" 
+        data-testid="error-message"
+        style={{ display: error ? 'block' : 'none' }}
+      >
+        {error}
+      </div>
       {success && (
         <div className="success-message" role="status" data-testid="success-message">
           Proposal generated successfully!

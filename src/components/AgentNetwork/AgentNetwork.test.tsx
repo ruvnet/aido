@@ -184,10 +184,9 @@ describe('AgentNetwork', () => {
     
     // Wait for error message to appear
     await waitFor(() => {
-      const errorMessage = screen.getByTestId('error-message');
-      expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
-    });
+      expect(screen.getByTestId('error-message')).toBeVisible();
+      expect(screen.getByTestId('error-message')).toHaveTextContent('Please enter a proposal topic');
+    }, { timeout: 1000 });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
@@ -210,10 +209,9 @@ describe('AgentNetwork', () => {
     
     // Wait for error message to appear
     await waitFor(() => {
-      const errorMessage = screen.getByTestId('error-message');
-      expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage).toHaveTextContent('Please select an agent specialty');
-    });
+      expect(screen.getByTestId('error-message')).toBeVisible();
+      expect(screen.getByTestId('error-message')).toHaveTextContent('Please select an agent specialty');
+    }, { timeout: 1000 });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
