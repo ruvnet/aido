@@ -10,8 +10,8 @@ interface AgentNetworkProps {
 
 export const AgentNetwork: React.FC<AgentNetworkProps> = ({ 
   onProposalCreated,
-  openAIService = new OpenAIService('test-api-key'),
-  databaseService = new DatabaseService()
+  openAIService,
+  databaseService
 }) => {
   const [topic, setTopic] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
@@ -73,8 +73,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
         onProposalCreated(savedProposal.id);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(`Error generating proposal: ${errorMessage}`);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
       setSuccess(false);
       setProposal(''); // Clear any previous proposal
     } finally {

@@ -105,7 +105,7 @@ describe('AgentNetwork', () => {
     // Mock failure scenario
     mockOpenAI.generateProposal.mockRejectedValueOnce(new Error('API Error'));
     
-    render(<AgentNetwork />);
+    render(<AgentNetwork openAIService={mockOpenAI} databaseService={mockDatabase} />);
     
     // Wait for initial load and button to be enabled
     await waitFor(() => {
@@ -152,7 +152,7 @@ describe('AgentNetwork', () => {
   });
 
   it('should handle empty proposal topic', async () => {
-    render(<AgentNetwork />);
+    render(<AgentNetwork openAIService={mockOpenAI} databaseService={mockDatabase} />);
     
     // Wait for agents to load
     await waitFor(() => {
