@@ -77,22 +77,6 @@ This AI-driven decentralized organization could be applied in various fields:
 
 While this concept of an AIDO diverges from the traditional blockchain-based DAO, it presents an innovative approach to decentralized decision-making using AI. It could potentially offer faster decision-making and more adaptive strategies compared to human-led organizations or traditional DAOs. However, it would require careful design and ongoing refinement to ensure it operates ethically and effectively.
 
-Citations:
-- [1] https://www.investopedia.com/tech/what-dao/
-- [2] https://blockchain.oodles.io/blog/ai-for-dao/
-- [3] https://en.wikipedia.org/wiki/Decentralized_autonomous_organization
-- [4] https://aragon.org/how-to/the-future-of-daos-is-powered-by-ai
-- [5] https://blog.humans.ai/presenting-the-humans-ai-ai-dao/
-- [6] https://cointelegraph.com/news/daos-where-humans-may-fail-ai-could-succeed
-- [7] https://cointelegraph.com/magazine/real-ai-use-cases-crypto-no-2-ai-can-run-dao/
-- [8] https://towardsdatascience.com/why-building-an-ai-decentralized-autonomous-organization-ai-dao-85d018700e1a
-- [9] https://dexola.com/blog/autonomous-ai-agents-from-concept-to-real-world-application/
-- [10] https://tally.mirror.xyz/3auQPMop5sE8RmWt1T5ZLFMZN_bmzESu560-_QVrSBc
-- [11] https://www.linkedin.com/pulse/synergistic-potential-ai-enhanced-autonomy-dao-ilona-maklakova-9h9ge
-- [12] https://www.chaincatcher.com/en/article/2151715
-
-
-
 ## Implementation Documentation
 
 Detailed implementation guides can be found in the following documents:
@@ -1037,3 +1021,18 @@ ignore_paths = [".gitignore", "node_modules/", "tests/", "README.md"]
    ```
 
  
+
+Citations:
+- [1] https://www.investopedia.com/tech/what-dao/
+- [2] https://blockchain.oodles.io/blog/ai-for-dao/
+- [3] https://en.wikipedia.org/wiki/Decentralized_autonomous_organization
+- [4] https://aragon.org/how-to/the-future-of-daos-is-powered-by-ai
+- [5] https://blog.humans.ai/presenting-the-humans-ai-ai-dao/
+- [6] https://cointelegraph.com/news/daos-where-humans-may-fail-ai-could-succeed
+- [7] https://cointelegraph.com/magazine/real-ai-use-cases-crypto-no-2-ai-can-run-dao/
+- [8] https://towardsdatascience.com/why-building-an-ai-decentralized-autonomous-organization-ai-dao-85d018700e1a
+- [9] https://dexola.com/blog/autonomous-ai-agents-from-concept-to-real-world-application/
+- [10] https://tally.mirror.xyz/3auQPMop5sE8RmWt1T5ZLFMZN_bmzESu560-_QVrSBc
+- [11] https://www.linkedin.com/pulse/synergistic-potential-ai-enhanced-autonomy-dao-ilona-maklakova-9h9ge
+- [12] https://www.chaincatcher.com/en/article/2151715
+
