@@ -53,15 +53,18 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
 
       // Validate input
       if (!topic.trim()) {
-        throw new Error('Please enter a proposal topic');
+        setError('Please enter a proposal topic');
+        return;
       }
 
       if (!selectedSpecialty) {
-        throw new Error('Please select an agent specialty');
+        setError('Please select an agent specialty');
+        return;
       }
 
       if (!openAIService || !databaseService) {
-        throw new Error('Services not initialized');
+        setError('Services not initialized');
+        return;
       }
 
       // Generate proposal using OpenAI

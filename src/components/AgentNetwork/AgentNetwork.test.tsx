@@ -13,7 +13,7 @@ describe('AgentNetwork', () => {
   // Setup our mocked dependencies
   const mockOpenAI = {
     generateProposal: vi.fn().mockResolvedValue('Generated proposal content'),
-  };
+  } as unknown as OpenAIService;
 
   const mockDatabase = {
     saveProposal: vi.fn().mockResolvedValue({ id: '1', content: 'Generated proposal content' }),
@@ -21,7 +21,7 @@ describe('AgentNetwork', () => {
       { id: '1', name: 'Finance Agent', specialty: 'Finance' },
       { id: '2', name: 'Operations Agent', specialty: 'Operations' },
     ]),
-  };
+  } as unknown as DatabaseService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -161,16 +161,18 @@ describe('AgentNetwork', () => {
     });
     
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    await act(async () => {
+      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    });
     
     const generateButton = screen.getByText('Generate Proposal');
     await act(async () => {
       fireEvent.click(generateButton);
     });
     
-    await waitFor(() => {
-      expect(screen.getByTestId('error-message')).toHaveTextContent('Please enter a proposal topic');
-    });
+    // Wait for error message
+    const errorMessage = await screen.findByTestId('error-message');
+    expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
 
