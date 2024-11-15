@@ -124,7 +124,7 @@ export const PerformanceMonitoring: React.FC = () => {
 
           {currentView === 'agents' && (
             <div className="agent-metrics">
-              <h2>Agent Rankings</h2>
+              <h2>Agent Performance Rankings</h2>
               {metrics.agents
                 .sort((a, b) => b.averageRating - a.averageRating)
                 .map(agent => (
