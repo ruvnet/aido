@@ -42,23 +42,6 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
       loadAgents();
     }
   }, [databaseService]);
-    setIsLoading(true);
-    try {
-      const loadedAgents = await databaseService.getAgents();
-      setAgents(loadedAgents || []);
-      setError(null);
-    } catch (err) {
-      setError('Error loading agents');
-      setAgents([]);
-    } finally {
-      setIsLoading(false);
-      setIsInitialized(true);
-    }
-  };
-
-  useEffect(() => {
-    loadAgents();
-  }, []);
 
   const handleGenerateProposal = async () => {
     try {
@@ -75,6 +58,10 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
 
       if (!selectedSpecialty) {
         throw new Error('Please select an agent specialty');
+      }
+
+      if (!openAIService || !databaseService) {
+        throw new Error('Services not initialized');
       }
 
       // Generate proposal using OpenAI
