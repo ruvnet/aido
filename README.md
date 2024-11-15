@@ -87,6 +87,18 @@ Citations:
 - [11] https://www.linkedin.com/pulse/synergistic-potential-ai-enhanced-autonomy-dao-ilona-maklakova-9h9ge
 - [12] https://www.chaincatcher.com/en/article/2151715
 
+
+
+## Implementation Documentation
+
+Detailed implementation guides can be found in the following documents:
+
+- [**Test-Driven Development**](docs/test-driven-development.md) - Comprehensive guide to our London School TDD approach, enabling autonomous development and continuous refinement
+- [**Specification**](docs/specification.md) - Detailed system requirements, data models, and technical specifications
+- [**Pseudocode**](docs/pseudocode.md) - Algorithmic implementations for all system components
+- [**Architecture**](docs/architecture.md) - System design, component interactions, and deployment architecture
+- [**Refinement**](docs/refinement.md) - Continuous improvement strategies and optimization approaches
+- [**Completion**](docs/completion.md) - Final implementation steps and deployment procedures
 ## Project Structure
 
 ```
