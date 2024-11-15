@@ -12,11 +12,15 @@ vi.mock('../../services/DatabaseService');
 describe('AgentNetwork', () => {
   // Setup our mocked dependencies
   const mockOpenAI = {
-    generateProposal: vi.fn().mockResolvedValue('Generated proposal content'),
+    generateProposal: vi.fn().mockImplementation(async (topic: string, specialty: string) => {
+      return 'Generated proposal content';
+    }),
   } as unknown as OpenAIService;
 
   const mockDatabase = {
-    saveProposal: vi.fn().mockResolvedValue({ id: '1', content: 'Generated proposal content' }),
+    saveProposal: vi.fn().mockImplementation(async (content: string, specialty: string) => {
+      return { id: '1', content: content };
+    }),
     getAgents: vi.fn().mockResolvedValue([
       { id: '1', name: 'Finance Agent', specialty: 'Finance' },
       { id: '2', name: 'Operations Agent', specialty: 'Operations' },
@@ -78,8 +82,11 @@ describe('AgentNetwork', () => {
     
     // Click generate button
     const generateButton = screen.getByText('Generate Proposal');
-    await act(async () => {
-      fireEvent.click(generateButton);
+    fireEvent.click(generateButton);
+    
+    // Wait for all async operations to complete
+    await waitFor(() => {
+      expect(mockOpenAI.generateProposal).toHaveBeenCalled();
     });
     
     // Wait for async operations to complete
