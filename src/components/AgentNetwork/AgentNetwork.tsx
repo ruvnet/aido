@@ -17,18 +17,23 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Load available agents on mount
     const loadAgents = async () => {
+      setIsLoading(true);
       try {
         const loadedAgents = await database.getAgents();
-        setAgents(loadedAgents);
-        if (loadedAgents.length > 0) {
+        setAgents(loadedAgents || []);
+        if (loadedAgents?.length > 0) {
           setSelectedSpecialty(loadedAgents[0].specialty);
         }
       } catch (err) {
         setError('Error loading agents');
+        setAgents([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -99,7 +104,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
           className="form-control"
         >
           <option value="">Select Specialty</option>
-          {agents.map((agent) => (
+          {!isLoading && agents && agents.map((agent) => (
             <option key={agent.id} value={agent.specialty}>
               {agent.specialty}
             </option>
