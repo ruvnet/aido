@@ -28,7 +28,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
       try {
         const loadedAgents = await databaseService?.getAgents();
         setAgents(loadedAgents || []);
-        setError(null);
+        setError('');
       } catch (err) {
         setError('Error loading agents');
         setAgents([]);
