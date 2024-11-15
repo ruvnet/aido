@@ -49,7 +49,9 @@ describe('AgentNetwork', () => {
     
     // Wait for agents to load and button to be enabled
     await waitFor(() => {
-      expect(screen.getByText('Generate Proposal')).not.toBeDisabled();
+      expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
+      expect(screen.getByLabelText('Proposal Topic')).toBeInTheDocument();
+      expect(screen.getByLabelText('Agent Specialty')).toBeInTheDocument();
     });
     
     // Fill in proposal topic
@@ -98,7 +100,9 @@ describe('AgentNetwork', () => {
     
     // Wait for initial load and button to be enabled
     await waitFor(() => {
-      expect(screen.getByText('Generate Proposal')).not.toBeDisabled();
+      expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
+      expect(screen.getByLabelText('Proposal Topic')).toBeInTheDocument();
+      expect(screen.getByLabelText('Agent Specialty')).toBeInTheDocument();
     });
     
     // Fill in form

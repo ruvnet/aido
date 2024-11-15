@@ -72,7 +72,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(errorMessage.includes('Please') ? errorMessage : `Error generating proposal: ${errorMessage}`);
+      setError(`Error generating proposal: ${errorMessage}`);
       setSuccess(false);
       setProposal(''); // Clear any previous proposal
     } finally {
