@@ -127,21 +127,43 @@ describe('AgentNetwork', () => {
   });
 
   it('should handle empty proposal topic', async () => {
-    await act(async () => {
-      render(<AgentNetwork />);
+    render(<AgentNetwork />);
+    
+    // Wait for agents to load
+    await waitFor(() => {
+      expect(screen.getByLabelText('Agent Specialty')).toBeInTheDocument();
     });
     
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    await act(async () => {
-      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
-    });
+    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     
     const generateButton = screen.getByText('Generate Proposal');
-    await act(async () => {
-      fireEvent.click(generateButton);
+    fireEvent.click(generateButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Please enter a proposal topic')).toBeInTheDocument();
+      expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+    });
+  });
+
+  it('should handle empty specialty selection', async () => {
+    render(<AgentNetwork />);
+    
+    // Wait for agents to load
+    await waitFor(() => {
+      expect(screen.getByLabelText('Agent Specialty')).toBeInTheDocument();
     });
     
-    expect(screen.getByText('Please enter a proposal topic')).toBeInTheDocument();
-    expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+    // Only fill in topic, leaving specialty empty
+    const topicInput = screen.getByLabelText('Proposal Topic');
+    fireEvent.change(topicInput, { target: { value: 'Test Topic' } });
+    
+    const generateButton = screen.getByText('Generate Proposal');
+    fireEvent.click(generateButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Please select an agent specialty')).toBeInTheDocument();
+      expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+    });
   });
 });
