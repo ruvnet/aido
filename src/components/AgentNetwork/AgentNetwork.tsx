@@ -16,7 +16,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
   const [topic, setTopic] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
   const [proposal, setProposal] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,7 +137,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
         Generate Proposal
       </button>
 
-      {error && (
+      {error !== '' && (
         <div className="error-message" role="alert" data-testid="error-message">
           {error}
         </div>

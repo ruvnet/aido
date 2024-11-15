@@ -139,8 +139,10 @@ describe('AgentNetwork', () => {
   });
 
   it('should load available agents on mount', async () => {
-    await act(async () => {
-      render(<AgentNetwork />);
+    render(<AgentNetwork openAIService={mockOpenAI} databaseService={mockDatabase} />);
+    
+    await waitFor(() => {
+      expect(mockDatabase.getAgents).toHaveBeenCalled();
     });
     
     // Verify our getAgents method was called
@@ -165,22 +167,22 @@ describe('AgentNetwork', () => {
       fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     });
     
-    const generateButton = screen.getByText('Generate Proposal');
     await act(async () => {
-      fireEvent.click(generateButton);
+      fireEvent.click(screen.getByText('Generate Proposal'));
     });
-    
-    // Wait for error message
-    const errorMessage = await screen.findByTestId('error-message');
+
+    await waitFor(() => {
+      const errorMessage = screen.getByTestId('error-message');
+      expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
 
   it('should handle empty specialty selection', async () => {
-    render(<AgentNetwork />);
+    render(<AgentNetwork openAIService={mockOpenAI} databaseService={mockDatabase} />);
     
-    // Wait for agents to load
     await waitFor(() => {
+      expect(mockDatabase.getAgents).toHaveBeenCalled();
       expect(screen.getByLabelText('Agent Specialty')).toBeInTheDocument();
     });
     
