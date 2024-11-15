@@ -74,6 +74,10 @@ describe('PerformanceMonitoring', () => {
     
     await screen.findByText('Agent Performance Rankings');
     
+    // Switch to agent view and verify metrics
+    const agentViewButton = screen.getByText('Agent Performance Rankings');
+    fireEvent.click(agentViewButton);
+
     // Verify agent metrics are displayed
     expect(screen.getByText('Operations Agent')).toBeInTheDocument();
     expect(screen.getByText('Completed Tasks: 50')).toBeInTheDocument();
@@ -129,7 +133,7 @@ describe('PerformanceMonitoring', () => {
     render(<PerformanceMonitoring />);
     
     // Switch to agent view
-    const agentViewButton = screen.getByText('Agent Performance');
+    const agentViewButton = screen.getByText('Agent Performance Rankings');
     fireEvent.click(agentViewButton);
     
     await screen.findByText('Agent Performance');
