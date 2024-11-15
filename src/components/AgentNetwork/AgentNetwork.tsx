@@ -46,13 +46,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
   const handleGenerateProposal = async () => {
     try {
       // Reset states
-      setError(null);
-      setSuccess(false);
-      setProposal('');
-      setIsLoading(true);
-
-      // Reset states
-      setError(null);
+      setError('');
       setSuccess(false);
       setProposal('');
       setIsLoading(true);
@@ -66,6 +60,20 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
 
       if (!selectedSpecialty) {
         setError('Please select an agent specialty');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!openAIService || !databaseService) {
+        setError('Services not initialized');
+        setIsLoading(false);
+        return;
+      }
+
+      // Generate proposal using OpenAI
+      const generatedProposal = await openAIService.generateProposal(topic, selectedSpecialty);
+      if (!generatedProposal) {
+        setError('Failed to generate proposal');
         setIsLoading(false);
         return;
       }
