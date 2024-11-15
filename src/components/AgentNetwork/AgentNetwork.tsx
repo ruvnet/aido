@@ -40,26 +40,22 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   }, []);
 
   const handleGenerateProposal = async () => {
-    // Reset states
-    setError(null);
-    setSuccess(false);
-    setProposal('');
-    setIsLoading(true);
-
-    // Validate input
-    if (!topic.trim()) {
-      setError('Please enter a proposal topic');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!selectedSpecialty) {
-      setError('Please select an agent specialty');
-      setIsLoading(false);
-      return;
-    }
-
     try {
+      // Reset states
+      setError(null);
+      setSuccess(false);
+      setProposal('');
+      setIsLoading(true);
+
+      // Validate input
+      if (!topic.trim()) {
+        throw new Error('Please enter a proposal topic');
+      }
+
+      if (!selectedSpecialty) {
+        throw new Error('Please select an agent specialty');
+      }
+
       // Generate proposal using OpenAI
       const generatedProposal = await openAI.generateProposal(topic, selectedSpecialty);
       
@@ -75,9 +71,8 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
         onProposalCreated(savedProposal.id);
       }
     } catch (err) {
-      setIsLoading(false);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(`Error generating proposal: ${errorMessage}`);
+      setError(errorMessage.includes('Please') ? errorMessage : `Error generating proposal: ${errorMessage}`);
       setSuccess(false);
       setProposal(''); // Clear any previous proposal
     } finally {

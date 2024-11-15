@@ -138,12 +138,12 @@ describe('AgentNetwork', () => {
     fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     
     const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Please enter a proposal topic')).toBeInTheDocument();
-      expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+    await act(async () => {
+      fireEvent.click(generateButton);
     });
+    
+    expect(await screen.findByText('Please enter a proposal topic')).toBeInTheDocument();
+    expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
 
   it('should handle empty specialty selection', async () => {
@@ -159,11 +159,11 @@ describe('AgentNetwork', () => {
     fireEvent.change(topicInput, { target: { value: 'Test Topic' } });
     
     const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Please select an agent specialty')).toBeInTheDocument();
-      expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
+    await act(async () => {
+      fireEvent.click(generateButton);
     });
+    
+    expect(await screen.findByText('Please select an agent specialty')).toBeInTheDocument();
+    expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
 });
