@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:15
+    image: supabase/postgres:15.1.0.117
     ports:
       - "5432:5432"
     environment:
@@ -9,9 +9,130 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     volumes:
+      - ./volumes/db:/var/lib/postgresql/data
       - ./volumes/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  kong:
+    image: kong:2.8.1
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./volumes/kong.yml:/var/lib/kong/kong.yml
+
+  auth:
+    image: supabase/gotrue:v2.82.4
+    ports:
+      - "9999:9999"
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: http://localhost:8000
+      GOTRUE_DB_DRIVER: postgres
+      DB_NAMESPACE: auth
+      GOTRUE_DB_HOST: postgres
+      GOTRUE_DB_PORT: 5432
+      GOTRUE_DB_USER: postgres
+      GOTRUE_DB_PASSWORD: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_DISABLE_SIGNUP: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  rest:
+    image: postgrest/postgrest:v11.1.0
+    ports:
+      - "3000:3000"
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@postgres:5432/postgres
+      PGRST_DB_SCHEMA: public,storage
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  realtime:
+    image: supabase/realtime:v2.8.3
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      DB_SSL: "false"
+      JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters
+      REPLICATION_MODE: RLS
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  storage:
+    image: supabase/storage-api:v0.40.4
+    ports:
+      - "5000:5000"
+    environment:
+      ANON_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYxMzUwMTI2MSwiZXhwIjoxOTI5MDc3MjYxfQ.RZLk0JTuPaYK4t5LxUvO9wCH3HYK0XVHnCNGxXJvGKY
+      SERVICE_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjEzNTAxMjYxLCJleHAiOjE5MjkwNzcyNjF9.2DjYV8nW_JLz2cKqM8oj_5XQZ9x8v7nF5uHQ8JQ_YtA
+      PROJECT_REF: local
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      PGOPTIONS: "-c search_path=storage"
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+    volumes:
+      - ./volumes/storage:/var/lib/storage
+    depends_on:
+      rest:
+        condition: service_started
+
+  studio:
+    image: supabase/studio:20230330-4b3c7d6
+    ports:
+      - "3001:3000"
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: postgres
+      DEFAULT_ORGANIZATION: Default Organization
+      DEFAULT_PROJECT: Default Project
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_REST_URL: http://kong:8000/rest/v1/
+      SUPABASE_ANON_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYxMzUwMTI2MSwiZXhwIjoxOTI5MDc3MjYxfQ.RZLk0JTuPaYK4t5LxUvO9wCH3HYK0XVHnCNGxXJvGKY
+      SUPABASE_SERVICE_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjEzNTAxMjYxLCJleHAiOjE5MjkwNzcyNjF9.2DjYV8nW_JLz2cKqM8oj_5XQZ9x8v7nF5uHQ8JQ_YtA
+
+  meta:
+    image: supabase/postgres-meta:v0.68.0
+    ports:
+      - "8080:8080"
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: postgres
+      PG_META_DB_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
