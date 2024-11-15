@@ -20,25 +20,24 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load available agents on mount
-    const loadAgents = async () => {
-      setIsLoading(true);
-      try {
-        const loadedAgents = await database.getAgents();
-        setAgents(loadedAgents || []);
-        if (loadedAgents?.length > 0) {
-          setSelectedSpecialty(loadedAgents[0].specialty);
-        }
-      } catch (err) {
-        setError('Error loading agents');
-        setAgents([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadAgents();
   }, []);
+
+  const loadAgents = async () => {
+    setIsLoading(true);
+    try {
+      const loadedAgents = await database.getAgents();
+      setAgents(loadedAgents || []);
+      if (loadedAgents?.length > 0) {
+        setSelectedSpecialty(loadedAgents[0].specialty);
+      }
+    } catch (err) {
+      setError('Error loading agents');
+      setAgents([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGenerateProposal = async () => {
     // Reset states
@@ -120,10 +119,18 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
         Generate Proposal
       </button>
 
-      {error && <div className="error-message" role="alert">{error}</div>}
-      {success && <div className="success-message" role="status">Proposal generated successfully!</div>}
+      {error && (
+        <div className="error-message" role="alert" data-testid="error-message">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="success-message" role="status" data-testid="success-message">
+          Proposal generated successfully!
+        </div>
+      )}
       {proposal && (
-        <div className="proposal-container">
+        <div className="proposal-container" data-testid="proposal-container">
           <h2>Generated Proposal</h2>
           <p className="proposal-content">{proposal}</p>
         </div>
