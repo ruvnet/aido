@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { OpenAIService } from '../../services/OpenAIService';
 import { DatabaseService, Agent } from '../../services/DatabaseService';
 
+// Initialize services once outside component
+const openAI = new OpenAIService('test-api-key');
+const database = new DatabaseService();
+
 interface AgentNetworkProps {
   onProposalCreated?: (proposalId: string) => void;
 }
@@ -14,16 +18,15 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   const [success, setSuccess] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
 
-  // Initialize services
-  const openAI = new OpenAIService('dummy-key');
-  const database = new DatabaseService();
-
   useEffect(() => {
     // Load available agents on mount
     const loadAgents = async () => {
       try {
         const loadedAgents = await database.getAgents();
         setAgents(loadedAgents);
+        if (loadedAgents.length > 0) {
+          setSelectedSpecialty(loadedAgents[0].specialty);
+        }
       } catch (err) {
         setError('Error loading agents');
       }
@@ -39,8 +42,13 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
     setProposal('');
 
     // Validate input
-    if (!topic) {
+    if (!topic.trim()) {
       setError('Please enter a proposal topic');
+      return;
+    }
+
+    if (!selectedSpecialty) {
+      setError('Please select an agent specialty');
       return;
     }
 
@@ -76,6 +84,8 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           aria-label="Proposal Topic"
+          className="form-control"
+          placeholder="Enter proposal topic"
         />
       </div>
 
@@ -86,6 +96,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
           value={selectedSpecialty}
           onChange={(e) => setSelectedSpecialty(e.target.value)}
           aria-label="Agent Specialty"
+          className="form-control"
         >
           <option value="">Select Specialty</option>
           {agents.map((agent) => (
@@ -96,14 +107,20 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
         </select>
       </div>
 
-      <button onClick={handleGenerateProposal}>Generate Proposal</button>
+      <button 
+        onClick={handleGenerateProposal}
+        className="generate-button"
+        disabled={!topic.trim() || !selectedSpecialty}
+      >
+        Generate Proposal
+      </button>
 
-      {error && <div className="error">{error}</div>}
-      {success && <div className="success">Proposal generated successfully!</div>}
+      {error && <div className="error-message" role="alert">{error}</div>}
+      {success && <div className="success-message" role="status">Proposal generated successfully!</div>}
       {proposal && (
-        <div className="proposal">
+        <div className="proposal-container">
           <h2>Generated Proposal</h2>
-          <p>{proposal}</p>
+          <p className="proposal-content">{proposal}</p>
         </div>
       )}
     </div>
