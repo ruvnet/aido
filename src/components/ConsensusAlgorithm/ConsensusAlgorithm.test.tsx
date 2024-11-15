@@ -33,13 +33,17 @@ describe('ConsensusAlgorithm', () => {
     (DatabaseService as any).mockImplementation(() => mockDatabase);
   });
 
-  it('should render consensus algorithm interface', () => {
-    render(<ConsensusAlgorithm proposalId="1" />);
+  it('should render consensus algorithm interface', async () => {
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     expect(screen.getByText('Consensus Algorithm')).toBeInTheDocument();
   });
 
   it('should load proposal and evaluations on mount', async () => {
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     expect(mockDatabase.getProposal).toHaveBeenCalledWith('1');
     expect(mockDatabase.getEvaluations).toHaveBeenCalledWith('1');
@@ -50,7 +54,9 @@ describe('ConsensusAlgorithm', () => {
   });
 
   it('should calculate and display consensus metrics', async () => {
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     // Wait for calculations to complete
     await screen.findByText('Average Score: 8.0');
@@ -58,10 +64,14 @@ describe('ConsensusAlgorithm', () => {
   });
 
   it('should reach consensus when calculate button is clicked', async () => {
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     const calculateButton = await screen.findByText('Calculate Consensus');
-    fireEvent.click(calculateButton);
+    await act(async () => {
+      fireEvent.click(calculateButton);
+    });
     
     // Verify database update
     expect(mockDatabase.updateProposalStatus).toHaveBeenCalledWith('1', 'accepted');
@@ -74,7 +84,9 @@ describe('ConsensusAlgorithm', () => {
     // Mock scenario with insufficient evaluations
     mockDatabase.getEvaluations.mockResolvedValueOnce([]);
     
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     await screen.findByText('Insufficient evaluations to reach consensus');
     expect(screen.queryByText('Calculate Consensus')).not.toBeInTheDocument();
@@ -84,16 +96,22 @@ describe('ConsensusAlgorithm', () => {
     // Mock failure scenario
     mockDatabase.updateProposalStatus.mockRejectedValueOnce(new Error('Database error'));
     
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     const calculateButton = await screen.findByText('Calculate Consensus');
-    fireEvent.click(calculateButton);
+    await act(async () => {
+      fireEvent.click(calculateButton);
+    });
     
     await screen.findByText('Error reaching consensus: Database error');
   });
 
   it('should calculate consensus strength correctly', async () => {
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     // Wait for calculations
     await screen.findByText('Consensus Strength: High');
@@ -104,10 +122,14 @@ describe('ConsensusAlgorithm', () => {
   });
 
   it('should disable calculate button during processing', async () => {
-    render(<ConsensusAlgorithm proposalId="1" />);
+    await act(async () => {
+      render(<ConsensusAlgorithm proposalId="1" />);
+    });
     
     const calculateButton = await screen.findByText('Calculate Consensus');
-    fireEvent.click(calculateButton);
+    await act(async () => {
+      fireEvent.click(calculateButton);
+    });
     
     // Button should be disabled during processing
     expect(calculateButton).toBeDisabled();
