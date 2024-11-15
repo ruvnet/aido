@@ -37,7 +37,7 @@ describe('AgentNetwork', () => {
   });
 
   it('should render agent network interface', async () => {
-    render(<AgentNetwork />);
+    render(<AgentNetwork openAIService={mockOpenAI} databaseService={mockDatabase} />);
     
     // Header should be visible immediately
     expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('AgentNetwork', () => {
   });
 
   it('should generate proposal when button is clicked', async () => {
-    render(<AgentNetwork />);
+    render(<AgentNetwork openAIService={mockOpenAI} databaseService={mockDatabase} />);
     
     // Wait for agents to load and button to be enabled
     await waitFor(() => {

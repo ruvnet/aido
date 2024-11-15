@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { OpenAIService } from '../../services/OpenAIService';
 import { DatabaseService, Agent } from '../../services/DatabaseService';
 
-// Initialize services once outside component
-const openAI = new OpenAIService('test-api-key');
-const database = new DatabaseService();
-
 interface AgentNetworkProps {
+  openAIService?: OpenAIService;
+  databaseService?: DatabaseService;
   onProposalCreated?: (proposalId: string) => void;
 }
 
-export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated }) => {
+export const AgentNetwork: React.FC<AgentNetworkProps> = ({ 
+  onProposalCreated,
+  openAIService = new OpenAIService('test-api-key'),
+  databaseService = new DatabaseService()
+}) => {
   const [topic, setTopic] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
   const [proposal, setProposal] = useState('');
@@ -23,7 +25,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   const loadAgents = async () => {
     setIsLoading(true);
     try {
-      const loadedAgents = await database.getAgents();
+      const loadedAgents = await databaseService.getAgents();
       setAgents(loadedAgents || []);
       setError(null);
     } catch (err) {
@@ -57,10 +59,10 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       }
 
       // Generate proposal using OpenAI
-      const generatedProposal = await openAI.generateProposal(topic, selectedSpecialty);
+      const generatedProposal = await openAIService.generateProposal(topic, selectedSpecialty);
       
       // Save to database
-      const savedProposal = await database.saveProposal(generatedProposal, selectedSpecialty);
+      const savedProposal = await databaseService.saveProposal(generatedProposal, selectedSpecialty);
       
       // Update UI
       setProposal(generatedProposal);
