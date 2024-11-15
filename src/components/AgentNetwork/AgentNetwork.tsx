@@ -14,13 +14,16 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   const [topic, setTopic] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [proposal, setProposal] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadAgents();
+    const init = async () => {
+      await loadAgents();
+    };
+    init();
   }, []);
 
   const loadAgents = async () => {
@@ -31,6 +34,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       if (loadedAgents?.length > 0) {
         setSelectedSpecialty(loadedAgents[0].specialty);
       }
+      setError(null);
     } catch (err) {
       setError('Error loading agents');
       setAgents([]);
@@ -45,7 +49,7 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
 
   const handleGenerateProposal = async () => {
     // Reset states
-    setError('');
+    setError(null);
     setSuccess(false);
     setProposal('');
 
@@ -76,7 +80,8 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
         onProposalCreated(savedProposal.id);
       }
     } catch (err) {
-      setError(`Error generating proposal: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Error generating proposal: ${errorMessage}`);
       throw err; // Re-throw for test to catch
     }
   };
@@ -127,6 +132,11 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       {error && (
         <div className="error-message" role="alert" data-testid="error-message">
           {error}
+        </div>
+      )}
+      {success && (
+        <div className="success-message" role="status" data-testid="success-message">
+          Proposal generated successfully!
         </div>
       )}
       {success && (
