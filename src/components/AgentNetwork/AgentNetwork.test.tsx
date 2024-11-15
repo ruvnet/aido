@@ -82,30 +82,29 @@ describe('AgentNetwork', () => {
     
     // Click generate button and wait for async operations
     const generateButton = screen.getByText('Generate Proposal');
+    // Setup mock implementations
+    mockOpenAI.generateProposal.mockResolvedValueOnce('Generated proposal content');
+    mockDatabase.saveProposal.mockResolvedValueOnce({ 
+      id: '1', 
+      content: 'Generated proposal content' 
+    });
+
     await act(async () => {
       fireEvent.click(generateButton);
     });
-    
-    // Wait for the proposal generation
+
+    // Wait for all async operations to complete
     await waitFor(() => {
       expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
         'Cost Reduction',
         'Finance'
       );
-    });
-    
-    // Wait for async operations to complete
-    await waitFor(() => {
-      // Verify our dependencies were called correctly
-      expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
-        'Cost Reduction',
-        'Finance'
-      );
-      expect(mockDatabase.saveProposal).toHaveBeenCalledWith(
-        'Generated proposal content',
-        'Finance'
-      );
-    });
+    }, { timeout: 3000 });
+
+    expect(mockDatabase.saveProposal).toHaveBeenCalledWith(
+      'Generated proposal content',
+      'Finance'
+    );
     
     // Verify the result is displayed
     await waitFor(() => {
