@@ -114,7 +114,11 @@ describe('PerformanceMonitoring', () => {
   it('should display performance trends', async () => {
     render(<PerformanceMonitoring />);
     
-    await screen.findByText('Performance Trends');
+    const proposalTrend = await screen.findByText('Proposal Success Trend: Improving');
+    const taskTrend = await screen.findByText('Task Completion Trend: Stable');
+    
+    expect(proposalTrend).toBeInTheDocument();
+    expect(taskTrend).toBeInTheDocument();
     
     // Verify trend metrics
     expect(screen.getByText('Proposal Success Trend: Improving')).toBeInTheDocument();
@@ -128,7 +132,7 @@ describe('PerformanceMonitoring', () => {
     const agentViewButton = screen.getByText('Agent Performance');
     fireEvent.click(agentViewButton);
     
-    await screen.findByText('Agent Rankings');
+    await screen.findByText('Agent Performance');
     
     // Switch to task view
     const taskViewButton = screen.getByText('Task Metrics');
