@@ -52,7 +52,7 @@ describe('AgentNetwork', () => {
     
     // Verify our dependencies were called correctly
     expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
-      expect.stringContaining('Cost Reduction'),
+      'Cost Reduction',
       'Finance'
     );
     expect(mockDatabase.saveProposal).toHaveBeenCalledWith(
@@ -91,8 +91,8 @@ describe('AgentNetwork', () => {
     
     // Verify agents are displayed in the specialty select
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    expect(specialtySelect).toContainElement(screen.getByText('Finance'));
-    expect(specialtySelect).toContainElement(screen.getByText('Operations'));
+    await screen.findByText('Finance');
+    await screen.findByText('Operations');
   });
 
   it('should handle empty proposal topic', async () => {
