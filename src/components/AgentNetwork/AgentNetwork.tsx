@@ -19,13 +19,6 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const init = async () => {
-      await loadAgents();
-    };
-    init();
-  }, []);
-
   const loadAgents = async () => {
     setIsLoading(true);
     try {
@@ -82,7 +75,6 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Error generating proposal: ${errorMessage}`);
-      throw err; // Re-throw for test to catch
     }
   };
 
@@ -132,16 +124,6 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({ onProposalCreated })
       {error && (
         <div className="error-message" role="alert" data-testid="error-message">
           {error}
-        </div>
-      )}
-      {success && (
-        <div className="success-message" role="status" data-testid="success-message">
-          Proposal generated successfully!
-        </div>
-      )}
-      {success && (
-        <div className="success-message" role="status" data-testid="success-message">
-          Proposal generated successfully!
         </div>
       )}
       {success && (
