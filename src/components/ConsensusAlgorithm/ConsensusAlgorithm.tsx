@@ -88,52 +88,54 @@ export const ConsensusAlgorithm: React.FC<ConsensusAlgorithmProps> = ({ proposal
     }
   };
 
-  if (!proposal) {
-    return <div className="error">{error || 'Loading...'}</div>;
-  }
-
   return (
     <div className="consensus-algorithm">
       <h1>Consensus Algorithm</h1>
 
-      <div className="proposal-content">
-        <h2>Proposal</h2>
-        <p>{proposal.content}</p>
-      </div>
+      {!proposal ? (
+        <div className="error">{error || 'Loading...'}</div>
+      ) : (
+        <>
+          <div className="proposal-content">
+            <h2>Proposal</h2>
+            <p>{proposal.content}</p>
+          </div>
 
-      <div className="evaluations-summary">
-        <h2>Evaluations</h2>
-        <p>Total Evaluations: {evaluations.length}</p>
-        {evaluations.length === 0 && (
-          <p className="warning">Insufficient evaluations to reach consensus</p>
-        )}
-      </div>
+          <div className="evaluations-summary">
+            <h2>Evaluations</h2>
+            <p>Total Evaluations: {evaluations.length}</p>
+            {evaluations.length === 0 && (
+              <p className="warning">Insufficient evaluations to reach consensus</p>
+            )}
+          </div>
 
-      {metrics && (
-        <div className="consensus-metrics">
-          <h2>Consensus Metrics</h2>
-          <p>Average Score: {metrics.averageScore}</p>
-          <p>Consensus Strength: {metrics.consensusStrength}</p>
-          <p>Score Variance: {metrics.scoreVariance}</p>
-          <p>Participation Rate: {metrics.participationRate}%</p>
-        </div>
-      )}
+          {metrics && (
+            <div className="consensus-metrics">
+              <h2>Consensus Metrics</h2>
+              <p>Average Score: {metrics.averageScore.toFixed(1)}</p>
+              <p>Consensus Strength: {metrics.consensusStrength}</p>
+              <p>Score Variance: {metrics.scoreVariance}</p>
+              <p>Participation Rate: {metrics.participationRate}%</p>
+            </div>
+          )}
 
-      {error && <div className="error">{error}</div>}
+          {error && <div className="error">{error}</div>}
 
-      {evaluations.length > 0 && !consensusReached && (
-        <button
-          onClick={calculateConsensus}
-          disabled={isProcessing || consensusReached}
-        >
-          Calculate Consensus
-        </button>
-      )}
+          {evaluations.length > 0 && !consensusReached && (
+            <button
+              onClick={calculateConsensus}
+              disabled={isProcessing || consensusReached}
+            >
+              Calculate Consensus
+            </button>
+          )}
 
-      {consensusReached && (
-        <div className="consensus-result">
-          <h2>Consensus Reached: {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}</h2>
-        </div>
+          {consensusReached && (
+            <div className="consensus-result">
+              <h2>Consensus Reached: {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}</h2>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
