@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { TaskAllocation } from './TaskAllocation';
 import { DatabaseService } from '../../services/DatabaseService';
 import { OpenAIService } from '../../services/OpenAIService';
@@ -43,33 +43,43 @@ describe('TaskAllocation', () => {
     (DatabaseService as any).mockImplementation(() => mockDatabase);
   });
 
-  it('should render task allocation interface', () => {
-    render(<TaskAllocation />);
+  it('should render task allocation interface', async () => {
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     expect(screen.getByText('Task Allocation')).toBeInTheDocument();
     expect(screen.getByLabelText('Task Description')).toBeInTheDocument();
   });
 
   it('should load available agents on mount', async () => {
-    render(<TaskAllocation />);
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     expect(mockDatabase.getAgents).toHaveBeenCalled();
     
-    await screen.findByText('Finance Agent');
+    expect(screen.getByText('Finance Agent')).toBeInTheDocument();
     expect(screen.getByText('Operations Agent')).toBeInTheDocument();
   });
 
   it('should allocate task when form is submitted', async () => {
-    render(<TaskAllocation />);
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     // Fill in task description
     const taskInput = screen.getByLabelText('Task Description');
-    fireEvent.change(taskInput, { 
-      target: { value: 'Perform financial analysis for Q4' }
+    await act(async () => {
+      fireEvent.change(taskInput, { 
+        target: { value: 'Perform financial analysis for Q4' }
+      });
     });
     
     // Submit form
     const submitButton = screen.getByText('Allocate Task');
-    fireEvent.click(submitButton);
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
     
     // Verify AI matching was called
     expect(mockOpenAI.matchTask).toHaveBeenCalledWith(
@@ -85,20 +95,22 @@ describe('TaskAllocation', () => {
     );
     
     // Verify success message
-    await screen.findByText('Task allocated successfully');
+    expect(screen.getByText('Task allocated successfully')).toBeInTheDocument();
     expect(screen.getByText('Assigned to: Finance Agent')).toBeInTheDocument();
   });
 
   it('should display agent workload information', async () => {
-    render(<TaskAllocation />);
-    
-    await screen.findByText('Finance Agent');
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     // Click on agent to view workload
-    fireEvent.click(screen.getByText('Finance Agent'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Finance Agent'));
+    });
     
     // Verify workload info is displayed
-    await screen.findByText('Active Tasks: 2');
+    expect(screen.getByText('Active Tasks: 2')).toBeInTheDocument();
     expect(screen.getByText('Completion Rate: 90%')).toBeInTheDocument();
   });
 
@@ -106,42 +118,76 @@ describe('TaskAllocation', () => {
     // Mock failure scenario
     mockOpenAI.matchTask.mockRejectedValueOnce(new Error('Matching failed'));
     
-    render(<TaskAllocation />);
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     const taskInput = screen.getByLabelText('Task Description');
-    fireEvent.change(taskInput, { 
-      target: { value: 'Perform financial analysis' }
+    await act(async () => {
+      fireEvent.change(taskInput, { 
+        target: { value: 'Perform financial analysis' }
+      });
     });
     
     const submitButton = screen.getByText('Allocate Task');
-    fireEvent.click(submitButton);
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
     
-    await screen.findByText('Error allocating task: Matching failed');
+    expect(screen.getByText('Error allocating task: Matching failed')).toBeInTheDocument();
   });
 
   it('should validate task description', async () => {
-    render(<TaskAllocation />);
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     const submitButton = screen.getByText('Allocate Task');
-    fireEvent.click(submitButton);
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
     
     expect(screen.getByText('Please enter a task description')).toBeInTheDocument();
     expect(mockOpenAI.matchTask).not.toHaveBeenCalled();
   });
 
   it('should disable submit button during allocation', async () => {
-    render(<TaskAllocation />);
+    // Create a promise that we can resolve manually
+    let resolveMatchTask: (value: any) => void;
+    const matchTaskPromise = new Promise((resolve) => {
+      resolveMatchTask = resolve;
+    });
+    
+    // Override the mock to use our controlled promise
+    mockOpenAI.matchTask.mockImplementationOnce(() => matchTaskPromise);
+    
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     const taskInput = screen.getByLabelText('Task Description');
-    fireEvent.change(taskInput, { 
-      target: { value: 'Perform financial analysis' }
+    await act(async () => {
+      fireEvent.change(taskInput, { 
+        target: { value: 'Perform financial analysis' }
+      });
     });
     
     const submitButton = screen.getByText('Allocate Task');
-    fireEvent.click(submitButton);
     
-    // Button should be disabled during allocation
+    // Click submit and verify button is disabled
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+    
     expect(submitButton).toBeDisabled();
+    
+    // Resolve the matchTask promise
+    await act(async () => {
+      resolveMatchTask!({
+        agentId: '1',
+        explanation: 'Best match for financial analysis'
+      });
+    });
     
     // Wait for allocation to complete
     await screen.findByText('Task allocated successfully');
@@ -151,12 +197,14 @@ describe('TaskAllocation', () => {
   });
 
   it('should show agent capabilities', async () => {
-    render(<TaskAllocation />);
-    
-    await screen.findByText('Finance Agent');
+    await act(async () => {
+      render(<TaskAllocation />);
+    });
     
     // Click on agent to view capabilities
-    fireEvent.click(screen.getByText('Finance Agent'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Finance Agent'));
+    });
     
     // Verify capabilities are displayed
     expect(screen.getByText('Specialty: Finance')).toBeInTheDocument();
