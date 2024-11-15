@@ -136,7 +136,7 @@ describe('PerformanceMonitoring', () => {
     const agentViewButton = screen.getByText('Agent Performance Rankings');
     fireEvent.click(agentViewButton);
     
-    await screen.findByText('Agent Performance');
+    await screen.findByText('Agent Performance Rankings');
     
     // Switch to task view
     const taskViewButton = screen.getByText('Task Metrics');
