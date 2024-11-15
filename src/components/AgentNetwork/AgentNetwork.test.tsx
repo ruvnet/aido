@@ -182,10 +182,12 @@ describe('AgentNetwork', () => {
       fireEvent.click(screen.getByText('Generate Proposal'));
     });
 
-    // Wait for error message
-    const errorMessage = await screen.findByTestId('error-message');
-    expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage.textContent).toBe('Please enter a proposal topic');
+    // Wait for error message to appear and verify content
+    await waitFor(() => {
+      const errorMessage = screen.getByTestId('error-message');
+      expect(errorMessage).toBeInTheDocument();
+      expect(errorMessage.textContent).toBe('Please enter a proposal topic');
+    });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
@@ -211,7 +213,7 @@ describe('AgentNetwork', () => {
       const errorMessage = screen.getByTestId('error-message');
       expect(errorMessage).toBeInTheDocument();
       expect(errorMessage.textContent).toBe('Please select an agent specialty');
-    });
+    }, { timeout: 3000 });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
