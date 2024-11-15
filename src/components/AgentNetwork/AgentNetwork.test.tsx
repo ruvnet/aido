@@ -80,13 +80,18 @@ describe('AgentNetwork', () => {
       fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     });
     
-    // Click generate button
+    // Click generate button and wait for async operations
     const generateButton = screen.getByText('Generate Proposal');
-    fireEvent.click(generateButton);
+    await act(async () => {
+      fireEvent.click(generateButton);
+    });
     
-    // Wait for all async operations to complete
+    // Wait for the proposal generation
     await waitFor(() => {
-      expect(mockOpenAI.generateProposal).toHaveBeenCalled();
+      expect(mockOpenAI.generateProposal).toHaveBeenCalledWith(
+        'Cost Reduction',
+        'Finance'
+      );
     });
     
     // Wait for async operations to complete
@@ -174,13 +179,14 @@ describe('AgentNetwork', () => {
       fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
     });
     
-    fireEvent.click(screen.getByText('Generate Proposal'));
-
-    await waitFor(() => {
-      const errorMessage = screen.getByTestId('error-message');
-      expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage.textContent).toBe('Please enter a proposal topic');
+    await act(async () => {
+      fireEvent.click(screen.getByText('Generate Proposal'));
     });
+
+    // Wait for error message
+    const errorMessage = await screen.findByTestId('error-message');
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage.textContent).toBe('Please enter a proposal topic');
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
@@ -197,16 +203,15 @@ describe('AgentNetwork', () => {
     const topicInput = screen.getByLabelText('Proposal Topic');
     fireEvent.change(topicInput, { target: { value: 'Test Topic' } });
     
-    const generateButton = screen.getByText('Generate Proposal');
+    // Click button and wait for error
     await act(async () => {
-      fireEvent.click(generateButton);
+      fireEvent.click(screen.getByText('Generate Proposal'));
     });
     
-    await waitFor(() => {
-      const errorMessage = screen.getByTestId('error-message');
-      expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage.textContent).toBe('Please select an agent specialty');
-    });
+    // Verify error message
+    const errorMessage = await screen.findByTestId('error-message');
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage.textContent).toBe('Please select an agent specialty');
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
