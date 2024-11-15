@@ -1,341 +1,354 @@
-# AIDO Architecture
+# AIDO Architecture Documentation
 
 ## System Overview
 
-The AIDO system is built using a microservices architecture with Supabase Edge Functions, leveraging OpenAI for AI capabilities and Supabase for data persistence. The system is designed to be scalable, maintainable, and secure.
+AIDO (AI-Driven Decentralized Organization) is a decentralized system that leverages artificial intelligence for autonomous decision-making and task management. The system follows a component-based architecture with clear separation of concerns and well-defined interfaces between components.
 
-## High-Level Architecture
+## Architecture Diagram
 
-### Component Diagram
-```mermaid
-graph TD
-    subgraph "Edge Functions"
-        AN[Agent Network]
-        DM[Decision Making]
-        CA[Consensus Algorithm]
-        TA[Task Allocation]
-        PM[Performance Monitoring]
-    end
-    
-    subgraph "External Services"
-        OAI[OpenAI API]
-        DB[(Supabase Database)]
-    end
-    
-    AN --> OAI
-    AN --> DB
-    DM --> OAI
-    DM --> DB
-    CA --> DB
-    TA --> OAI
-    TA --> DB
-    PM --> DB
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        AIDO System                          │
+│                                                            │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐ │
+│  │              │    │              │    │              │ │
+│  │    Agent     │───▶│   Decision   │───▶│  Consensus   │ │
+│  │   Network    │    │    Making    │    │  Algorithm   │ │
+│  │              │    │              │    │              │ │
+│  └──────────────┘    └──────────────┘    └──────────────┘ │
+│         │                   │                   │          │
+│         │                   │                   │          │
+│         ▼                   ▼                   ▼          │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐ │
+│  │              │    │              │    │              │ │
+│  │    Task      │◀───│  OpenAI      │───▶│ Performance  │ │
+│  │ Allocation   │    │  Service     │    │ Monitoring   │ │
+│  │              │    │              │    │              │ │
+│  └──────────────┘    └──────────────┘    └──────────────┘ │
+│         │                   │                   │          │
+│         │                   │                   │          │
+│         └───────────┐  ┌───┴───────┐  ┌────────┘          │
+│                     ▼  ▼           ▼  ▼                    │
+│               ┌──────────────────────────────┐             │
+│               │                              │             │
+│               │      Database Service        │             │
+│               │                              │             │
+│               └──────────────────────────────┘             │
+│                                                            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Component Details
+## Core Components
 
-### 1. Agent Network Service
+### 1. Agent Network
 
-#### Responsibilities
+**Purpose**: Manages AI agents and proposal generation.
+
+**Key Responsibilities**:
 - Agent registration and management
-- Proposal generation
-- Inter-agent communication
-- Capability management
+- Proposal generation using AI
+- Agent specialty tracking
+- Initial proposal validation
 
-#### Key Classes
+**Interfaces**:
 ```typescript
-class AgentNetwork {
-    private repository: AgentRepository;
-    private openai: OpenAIService;
-    
-    async registerAgent(details: AgentDetails): Promise<Agent>;
-    async generateProposal(agentId: string, topic: string): Promise<Proposal>;
-    async updateCapabilities(agentId: string, capabilities: string[]): Promise<Agent>;
-    async getAgentProfile(agentId: string): Promise<AgentProfile>;
-}
-
-class AgentRepository {
-    async save(agent: Agent): Promise<Agent>;
-    async findById(id: string): Promise<Agent | null>;
-    async update(id: string, updates: Partial<Agent>): Promise<Agent>;
-    async list(filters?: AgentFilters): Promise<Agent[]>;
-}
-
-class OpenAIService {
-    async generateResponse(prompt: string): Promise<string>;
-    async analyzeCapabilities(description: string): Promise<string[]>;
+interface AgentNetworkProps {
+  onProposalCreated?: (proposalId: string) => void;
 }
 ```
 
-### 2. Decision Making Service
+### 2. Decision Making
 
-#### Responsibilities
+**Purpose**: Handles proposal evaluation and scoring.
+
+**Key Responsibilities**:
 - Proposal evaluation
-- Decision tracking
-- Evaluation history
-- Quality assurance
+- Score calculation
+- Evaluation history tracking
+- Multiple evaluator support
 
-#### Key Classes
+**Interfaces**:
 ```typescript
-class DecisionMaking {
-    private repository: DecisionRepository;
-    private openai: OpenAIService;
-    
-    async evaluateProposal(proposalId: string, evaluatorId: string): Promise<Evaluation>;
-    async getEvaluationHistory(proposalId: string): Promise<Evaluation[]>;
-    async updateEvaluation(evaluationId: string, updates: Partial<Evaluation>): Promise<Evaluation>;
-}
-
-class DecisionRepository {
-    async saveEvaluation(evaluation: Evaluation): Promise<Evaluation>;
-    async findEvaluations(proposalId: string): Promise<Evaluation[]>;
-    async updateEvaluation(id: string, updates: Partial<Evaluation>): Promise<Evaluation>;
+interface DecisionMakingProps {
+  proposalId: string;
 }
 ```
 
-### 3. Consensus Service
+### 3. Consensus Algorithm
 
-#### Responsibilities
+**Purpose**: Implements consensus mechanism for proposal acceptance.
+
+**Key Responsibilities**:
 - Consensus calculation
-- Vote weighting
-- Decision finalization
-- Conflict resolution
+- Voting mechanism
+- Threshold management
+- Agreement verification
 
-#### Key Classes
+**Interfaces**:
 ```typescript
-class ConsensusService {
-    private repository: ConsensusRepository;
-    
-    async calculateConsensus(proposalId: string): Promise<ConsensusResult>;
-    async getVotingHistory(proposalId: string): Promise<Vote[]>;
-    async finalizeDecision(proposalId: string): Promise<Decision>;
-}
-
-class ConsensusRepository {
-    async saveVote(vote: Vote): Promise<Vote>;
-    async findVotes(proposalId: string): Promise<Vote[]>;
-    async updateDecision(proposalId: string, decision: Decision): Promise<void>;
+interface ConsensusAlgorithmProps {
+  proposalId: string;
 }
 ```
 
-### 4. Task Allocation Service
+### 4. Task Allocation
 
-#### Responsibilities
-- Task distribution
+**Purpose**: Manages task distribution among agents.
+
+**Key Responsibilities**:
+- Task creation and assignment
 - Workload balancing
-- Performance tracking
-- Resource optimization
+- Agent matching
+- Task status tracking
 
-#### Key Classes
+**Interfaces**:
 ```typescript
-class TaskAllocation {
-    private repository: TaskRepository;
-    private openai: OpenAIService;
-    
-    async allocateTask(task: Task): Promise<TaskAllocation>;
-    async updateTaskStatus(taskId: string, status: TaskStatus): Promise<Task>;
-    async getAgentWorkload(agentId: string): Promise<Workload>;
-}
-
-class TaskRepository {
-    async saveTask(task: Task): Promise<Task>;
-    async findTasks(filters: TaskFilters): Promise<Task[]>;
-    async updateTask(id: string, updates: Partial<Task>): Promise<Task>;
-}
+interface TaskAllocationProps {}
 ```
 
-### 5. Performance Monitoring Service
+### 5. Performance Monitoring
 
-#### Responsibilities
-- KPI tracking
+**Purpose**: Tracks and analyzes system performance.
+
+**Key Responsibilities**:
 - Metric collection
 - Performance analysis
-- System health monitoring
+- Historical data tracking
+- Report generation
 
-#### Key Classes
+**Interfaces**:
 ```typescript
-class PerformanceMonitoring {
-    private repository: MetricsRepository;
-    
-    async calculateKPIs(timeRange: TimeRange): Promise<KPIReport>;
-    async trackMetric(metric: Metric): Promise<void>;
-    async generateReport(timeRange: TimeRange): Promise<PerformanceReport>;
+interface PerformanceMonitoringProps {}
+```
+
+## Service Layer
+
+### 1. OpenAI Service
+
+**Purpose**: Manages AI operations and interactions.
+
+**Key Features**:
+- Proposal generation
+- Task matching
+- Content evaluation
+- AI model management
+
+**Interface**:
+```typescript
+interface IOpenAIService {
+  generateProposal(topic: string, specialty: string): Promise<string>;
+  evaluateProposal(content: string): Promise<{
+    score: number;
+    explanation: string;
+  }>;
+  matchTask(
+    description: string,
+    agents: Array<{ id: string; specialty: string }>
+  ): Promise<{
+    agentId: string;
+    explanation: string;
+  }>;
 }
+```
 
-class MetricsRepository {
-    async saveMetric(metric: Metric): Promise<void>;
-    async findMetrics(filters: MetricFilters): Promise<Metric[]>;
-    async aggregateMetrics(groupBy: string[]): Promise<AggregatedMetrics>;
+### 2. Database Service
+
+**Purpose**: Manages data persistence and retrieval.
+
+**Key Features**:
+- Data storage
+- Query operations
+- Transaction management
+- Data validation
+
+**Interface**:
+```typescript
+interface IDatabaseService {
+  saveProposal(content: string, specialty: string): Promise<Proposal>;
+  getAgents(): Promise<Agent[]>;
+  getProposal(id: string): Promise<Proposal | null>;
+  saveEvaluation(proposalId: string, score: number, explanation: string): Promise<Evaluation>;
+  getEvaluations(proposalId: string): Promise<Evaluation[]>;
+  updateProposalStatus(proposalId: string, status: 'accepted' | 'rejected'): Promise<Proposal>;
+  saveTask(description: string, agentId: string, explanation: string): Promise<Task>;
+  getAgentWorkload(agentId: string): Promise<AgentWorkload>;
+  getPerformanceMetrics(dateRange?: DateRange): Promise<PerformanceMetrics>;
 }
 ```
 
-## Data Flow
+## Data Models
 
-### 1. Proposal Generation and Evaluation
-```mermaid
-sequenceDiagram
-    participant Agent
-    participant AN as AgentNetwork
-    participant DM as DecisionMaking
-    participant OAI as OpenAI
-    participant DB as Database
-    
-    Agent->>AN: Generate Proposal
-    AN->>OAI: Generate Content
-    OAI-->>AN: Proposal Content
-    AN->>DB: Save Proposal
-    DB-->>AN: Proposal ID
-    AN->>DM: Request Evaluation
-    DM->>OAI: Evaluate Content
-    OAI-->>DM: Evaluation
-    DM->>DB: Save Evaluation
+### 1. Agent Model
+```typescript
+interface Agent {
+  id: string;
+  name: string;
+  specialty: string;
+}
 ```
 
-### 2. Task Allocation Flow
-```mermaid
-sequenceDiagram
-    participant Task
-    participant TA as TaskAllocation
-    participant AN as AgentNetwork
-    participant OAI as OpenAI
-    participant DB as Database
-    
-    Task->>TA: Create Task
-    TA->>DB: Save Task
-    TA->>AN: Get Available Agents
-    AN-->>TA: Agent List
-    TA->>OAI: Match Task to Agents
-    OAI-->>TA: Best Match
-    TA->>DB: Update Task Assignment
+### 2. Proposal Model
+```typescript
+interface Proposal {
+  id: string;
+  content: string;
+  agentSpecialty: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: Date;
+}
 ```
 
-## Security Architecture
-
-### Authentication Flow
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Auth
-    participant Service
-    participant DB
-    
-    Client->>Auth: Request Token
-    Auth->>DB: Verify Credentials
-    DB-->>Auth: Validation Result
-    Auth-->>Client: JWT Token
-    Client->>Service: API Request + Token
-    Service->>Auth: Validate Token
-    Auth-->>Service: Token Valid
-    Service->>DB: Process Request
+### 3. Evaluation Model
+```typescript
+interface Evaluation {
+  id: string;
+  proposalId: string;
+  score: number;
+  explanation: string;
+  createdAt: Date;
+}
 ```
 
-### Authorization Layers
-1. **API Gateway**
-   - Token validation
-   - Rate limiting
-   - Request logging
+### 4. Task Model
+```typescript
+interface Task {
+  id: string;
+  description: string;
+  assignedAgentId: string;
+  status: 'pending' | 'assigned' | 'in_progress' | 'completed';
+  createdAt: Date;
+}
+```
 
-2. **Service Layer**
-   - Role-based access
-   - Resource ownership
-   - Action permissions
+## Component Communication
 
-3. **Data Layer**
-   - Row-level security
-   - Data encryption
-   - Audit logging
+### 1. Event Flow
+1. Agent Network generates proposal
+2. Decision Making evaluates proposal
+3. Consensus Algorithm reaches agreement
+4. Task Allocation assigns tasks
+5. Performance Monitoring tracks metrics
+
+### 2. State Management
+- Local component state using React hooks
+- Service layer for data persistence
+- Event-based communication between components
+
+## Security Considerations
+
+### 1. Authentication
+- API key management for OpenAI service
+- Database access control
+- Component-level access restrictions
+
+### 2. Data Validation
+- Input sanitization
+- Type checking
+- Error boundaries
+
+### 3. Error Handling
+- Service-level error handling
+- Component-level error states
+- User feedback mechanisms
+
+## Performance Optimization
+
+### 1. Code Splitting
+```typescript
+const Component = React.lazy(() => import('./Component'));
+```
+
+### 2. Caching
+- API response caching
+- Component memoization
+- Database query optimization
+
+### 3. Lazy Loading
+- Dynamic imports
+- Image optimization
+- On-demand data fetching
+
+## Testing Strategy
+
+### 1. Unit Testing
+- Component isolation
+- Service mocking
+- Behavior verification
+
+### 2. Integration Testing
+- Component interaction
+- Service integration
+- End-to-end workflows
+
+### 3. Performance Testing
+- Load testing
+- Response time monitoring
+- Resource utilization
 
 ## Deployment Architecture
 
-### Infrastructure
-```mermaid
-graph TD
-    subgraph "Edge Network"
-        LB[Load Balancer]
-        EF1[Edge Functions 1]
-        EF2[Edge Functions 2]
-        EFN[Edge Functions N]
-    end
-    
-    subgraph "Database Cluster"
-        Primary[(Primary DB)]
-        Replica1[(Replica 1)]
-        ReplicaN[(Replica N)]
-    end
-    
-    LB --> EF1
-    LB --> EF2
-    LB --> EFN
-    EF1 --> Primary
-    EF2 --> Primary
-    EFN --> Primary
-    Primary --> Replica1
-    Primary --> ReplicaN
-```
+### 1. Development
+- Local development server
+- Hot module replacement
+- Development database
 
-## Monitoring Architecture
+### 2. Staging
+- Integration testing
+- Performance testing
+- User acceptance testing
 
-### Metrics Collection
-```mermaid
-graph TD
-    subgraph "Services"
-        EF[Edge Functions]
-        DB[(Database)]
-        Cache[Cache]
-    end
-    
-    subgraph "Monitoring"
-        Metrics[Metrics Collector]
-        Alerts[Alert Manager]
-        Dashboard[Monitoring Dashboard]
-    end
-    
-    EF --> Metrics
-    DB --> Metrics
-    Cache --> Metrics
-    Metrics --> Alerts
-    Metrics --> Dashboard
-```
+### 3. Production
+- Load balancing
+- Database clustering
+- Monitoring and logging
 
-## Error Handling
+## Future Considerations
 
-### Error Flow
-```mermaid
-graph TD
-    Error[Error Occurs]
-    Catch[Error Handler]
-    Log[Error Logger]
-    Notify[Notification Service]
-    Response[Error Response]
-    
-    Error --> Catch
-    Catch --> Log
-    Catch --> Notify
-    Catch --> Response
-```
+### 1. Scalability
+- Horizontal scaling
+- Database sharding
+- Microservices architecture
 
-## Configuration Management
+### 2. Features
+- Advanced AI models
+- Real-time collaboration
+- Mobile support
 
-### Environment Configuration
-```yaml
-development:
-  openai:
-    api_key: ${OPENAI_API_KEY}
-    model: gpt-4
-  database:
-    url: ${SUPABASE_URL}
-    key: ${SUPABASE_KEY}
-  monitoring:
-    level: debug
-    metrics: true
+### 3. Integration
+- External service integration
+- API development
+- Third-party plugins
 
-production:
-  openai:
-    api_key: ${OPENAI_API_KEY}
-    model: gpt-4
-  database:
-    url: ${SUPABASE_URL}
-    key: ${SUPABASE_KEY}
-  monitoring:
-    level: info
-    metrics: true
+## Maintenance
+
+### 1. Monitoring
+- Error tracking
+- Performance metrics
+- User analytics
+
+### 2. Updates
+- Dependency management
+- Security patches
+- Feature updates
+
+### 3. Backup
+- Database backups
+- Configuration backups
+- Disaster recovery
+
+## Documentation
+
+### 1. Code Documentation
+- JSDoc comments
+- Type definitions
+- Architecture diagrams
+
+### 2. User Documentation
+- User guides
+- API documentation
+- Troubleshooting guides
+
+### 3. Development Documentation
+- Setup guides
+- Contributing guidelines
+- Testing documentation
