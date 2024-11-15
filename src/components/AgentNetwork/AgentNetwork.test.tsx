@@ -47,16 +47,22 @@ describe('AgentNetwork', () => {
   it('should generate proposal when button is clicked', async () => {
     render(<AgentNetwork />);
     
-    // Wait for agents to load
-    await screen.findByLabelText('Agent Specialty');
+    // Wait for agents to load and button to be enabled
+    await waitFor(() => {
+      expect(screen.getByText('Generate Proposal')).not.toBeDisabled();
+    });
     
     // Fill in proposal topic
     const topicInput = screen.getByLabelText('Proposal Topic');
-    fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    await act(async () => {
+      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    });
     
     // Select specialty
     const specialtySelect = screen.getByLabelText('Agent Specialty');
-    fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    await act(async () => {
+      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    });
     
     // Click generate button
     const generateButton = screen.getByText('Generate Proposal');
@@ -90,22 +96,28 @@ describe('AgentNetwork', () => {
     
     render(<AgentNetwork />);
     
-    // Wait for initial load
+    // Wait for initial load and button to be enabled
     await waitFor(() => {
-      expect(screen.getByLabelText('Proposal Topic')).toBeInTheDocument();
+      expect(screen.getByText('Generate Proposal')).not.toBeDisabled();
     });
     
     // Fill in form
-    fireEvent.change(screen.getByLabelText('Proposal Topic'), { 
-      target: { value: 'Cost Reduction' } 
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Proposal Topic'), { 
+        target: { value: 'Cost Reduction' } 
+      });
     });
     
-    fireEvent.change(screen.getByLabelText('Agent Specialty'), { 
-      target: { value: 'Finance' } 
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Agent Specialty'), { 
+        target: { value: 'Finance' } 
+      });
     });
     
     // Click and wait for error
-    fireEvent.click(screen.getByText('Generate Proposal'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Generate Proposal'));
+    });
     
     await waitFor(() => {
       expect(screen.getByText('Error generating proposal: API Error')).toBeInTheDocument();
