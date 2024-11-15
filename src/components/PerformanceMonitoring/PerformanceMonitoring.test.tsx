@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { PerformanceMonitoring } from './PerformanceMonitoring';
 import { DatabaseService } from '../../services/DatabaseService';
 
@@ -49,8 +49,10 @@ describe('PerformanceMonitoring', () => {
     (DatabaseService as any).mockImplementation(() => mockDatabase);
   });
 
-  it('should render performance monitoring interface', () => {
-    render(<PerformanceMonitoring />);
+  it('should render performance monitoring interface', async () => {
+    await act(async () => {
+      render(<PerformanceMonitoring />);
+    });
     expect(screen.getByText('Performance Monitoring')).toBeInTheDocument();
   });
 
@@ -85,17 +87,23 @@ describe('PerformanceMonitoring', () => {
   });
 
   it('should allow filtering by date range', async () => {
-    render(<PerformanceMonitoring />);
+    await act(async () => {
+      render(<PerformanceMonitoring />);
+    });
     
     // Select date range
     const startDate = screen.getByLabelText('Start Date');
     const endDate = screen.getByLabelText('End Date');
     
-    fireEvent.change(startDate, { target: { value: '2024-01-01' } });
-    fireEvent.change(endDate, { target: { value: '2024-01-31' } });
+    await act(async () => {
+      fireEvent.change(startDate, { target: { value: '2024-01-01' } });
+      fireEvent.change(endDate, { target: { value: '2024-01-31' } });
+    });
     
-    const applyButton = screen.getByText('Apply Filter');
-    fireEvent.click(applyButton);
+    await act(async () => {
+      const applyButton = screen.getByText('Apply Filter');
+      fireEvent.click(applyButton);
+    });
     
     // Verify database call with date range
     expect(mockDatabase.getPerformanceMetrics).toHaveBeenCalledWith(
