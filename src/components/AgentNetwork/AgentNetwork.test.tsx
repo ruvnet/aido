@@ -23,14 +23,15 @@ describe('AgentNetwork', () => {
     ]),
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
     // Reset our mocked implementations
-    (OpenAIService as any).mockImplementation(() => mockOpenAI);
-    (DatabaseService as any).mockImplementation(() => mockDatabase);
+    mockOpenAI.generateProposal.mockReset();
+    mockDatabase.getAgents.mockReset();
+    mockDatabase.saveProposal.mockReset();
     
-    // Setup default mock responses that resolve immediately
-    mockDatabase.getAgents.mockResolvedValueOnce([
+    // Setup default mock responses
+    mockDatabase.getAgents.mockResolvedValue([
       { id: '1', name: 'Finance Agent', specialty: 'Finance' },
       { id: '2', name: 'Operations Agent', specialty: 'Operations' }
     ]);
@@ -167,7 +168,9 @@ describe('AgentNetwork', () => {
       fireEvent.click(generateButton);
     });
     
-    expect(await screen.findByText('Please enter a proposal topic')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('error-message')).toHaveTextContent('Please enter a proposal topic');
+    });
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
 
@@ -188,7 +191,9 @@ describe('AgentNetwork', () => {
       fireEvent.click(generateButton);
     });
     
-    expect(await screen.findByText('Please select an agent specialty')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('error-message')).toHaveTextContent('Please select an agent specialty');
+    });
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
 });
