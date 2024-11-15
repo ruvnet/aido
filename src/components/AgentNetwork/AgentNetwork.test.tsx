@@ -81,26 +81,28 @@ describe('AgentNetwork', () => {
     // Mock failure scenario
     mockOpenAI.generateProposal.mockRejectedValueOnce(new Error('API Error'));
     
-    await act(async () => {
-      render(<AgentNetwork />);
+    render(<AgentNetwork />);
+    
+    // Wait for initial load
+    await waitFor(() => {
+      expect(screen.getByLabelText('Proposal Topic')).toBeInTheDocument();
     });
     
-    const topicInput = screen.getByLabelText('Proposal Topic');
-    await act(async () => {
-      fireEvent.change(topicInput, { target: { value: 'Cost Reduction' } });
+    // Fill in form
+    fireEvent.change(screen.getByLabelText('Proposal Topic'), { 
+      target: { value: 'Cost Reduction' } 
     });
     
-    const specialtySelect = screen.getByLabelText('Agent Specialty');
-    await act(async () => {
-      fireEvent.change(specialtySelect, { target: { value: 'Finance' } });
+    fireEvent.change(screen.getByLabelText('Agent Specialty'), { 
+      target: { value: 'Finance' } 
     });
     
-    const generateButton = screen.getByText('Generate Proposal');
-    await act(async () => {
-      fireEvent.click(generateButton);
-    });
+    // Click and wait for error
+    fireEvent.click(screen.getByText('Generate Proposal'));
     
-    await screen.findByText('Error generating proposal: API Error');
+    await waitFor(() => {
+      expect(screen.getByText('Error generating proposal: API Error')).toBeInTheDocument();
+    });
   });
 
   it('should load available agents on mount', async () => {
