@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { AgentNetwork } from './AgentNetwork';
 import { OpenAIService } from '../../services/OpenAIService';
 import { DatabaseService } from '../../services/DatabaseService';
@@ -37,9 +38,10 @@ describe('AgentNetwork', () => {
 
   it('should render agent network interface', async () => {
     render(<AgentNetwork />);
-    await screen.findByText('AI Agent Network');
-    expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
-    expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('AI Agent Network')).toBeInTheDocument();
+      expect(screen.getByText('Generate Proposal')).toBeInTheDocument();
+    });
   });
 
   it('should generate proposal when button is clicked', async () => {
