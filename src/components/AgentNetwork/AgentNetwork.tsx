@@ -55,15 +55,13 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
       
       // Validate input
       if (!topic.trim()) {
-        const errorMsg = 'Please enter a proposal topic';
-        setError(errorMsg);
+        setError('Please enter a proposal topic');
         setIsLoading(false);
         return;
       }
 
       if (!selectedSpecialty) {
-        const errorMsg = 'Please select an agent specialty';
-        setError(errorMsg);
+        setError('Please select an agent specialty');
         setIsLoading(false);
         return;
       }

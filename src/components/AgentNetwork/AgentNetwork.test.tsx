@@ -203,15 +203,16 @@ describe('AgentNetwork', () => {
     const topicInput = screen.getByLabelText('Proposal Topic');
     fireEvent.change(topicInput, { target: { value: 'Test Topic' } });
     
-    // Click button and wait for error
     await act(async () => {
       fireEvent.click(screen.getByText('Generate Proposal'));
     });
-    
-    // Verify error message
-    const errorMessage = await screen.findByTestId('error-message');
-    expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage.textContent).toBe('Please select an agent specialty');
+
+    // Wait for error message to appear and verify content
+    await waitFor(() => {
+      const errorMessage = screen.getByTestId('error-message');
+      expect(errorMessage).toBeInTheDocument();
+      expect(errorMessage.textContent).toBe('Please select an agent specialty');
+    });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
   });
