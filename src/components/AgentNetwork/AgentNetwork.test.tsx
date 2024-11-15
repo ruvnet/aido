@@ -186,7 +186,7 @@ describe('AgentNetwork', () => {
     await waitFor(() => {
       const errorMessage = screen.getByTestId('error-message');
       expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage.textContent).toBe('Please enter a proposal topic');
+      expect(errorMessage).toHaveTextContent('Please enter a proposal topic');
     });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
@@ -212,7 +212,7 @@ describe('AgentNetwork', () => {
     await waitFor(() => {
       const errorMessage = screen.getByTestId('error-message');
       expect(errorMessage).toBeInTheDocument();
-      expect(errorMessage.textContent).toBe('Please select an agent specialty');
+      expect(errorMessage).toHaveTextContent('Please select an agent specialty');
     }, { timeout: 3000 });
     
     expect(mockOpenAI.generateProposal).not.toHaveBeenCalled();
