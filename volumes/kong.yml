@@ -1,0 +1,54 @@
+_format_version: "2.1"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth:9999
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+    plugins:
+      - name: cors
+  - name: rest-service
+    url: http://rest:3000
+    routes:
+      - name: rest-route
+        paths:
+          - /rest/v1
+    plugins:
+      - name: cors
+  - name: realtime-service
+    url: http://realtime:4000
+    routes:
+      - name: realtime-route
+        paths:
+          - /realtime/v1
+    plugins:
+      - name: cors
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+        - X-Auth-Token
+      exposed_headers:
+        - X-Auth-Token
+      credentials: true
+      max_age: 3600
