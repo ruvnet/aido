@@ -78,14 +78,6 @@ export const AgentNetwork: React.FC<AgentNetworkProps> = ({
         return;
       }
 
-      if (!openAIService || !databaseService) {
-        setError('Services not initialized');
-        return;
-      }
-
-      // Generate proposal using OpenAI
-      const generatedProposal = await openAIService.generateProposal(topic, selectedSpecialty);
-      
       // Save to database
       const savedProposal = await databaseService.saveProposal(generatedProposal, selectedSpecialty);
       
